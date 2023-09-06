@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -17,7 +16,7 @@ func main() {
 }
 
 func getAllUsersController(w http.ResponseWriter, r *http.Request) {
-	users, err := GetAllUsers()
+	users, err := GetUser()
 	if err != nil {
 		panic(err)
 	}
@@ -26,10 +25,6 @@ func getAllUsersController(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	w.Write(b)
-}
-
-type Users struct {
-	Users []User `json:"users"`
 }
 
 type User struct {
@@ -49,15 +44,22 @@ type Account struct {
 	Balance float64 `json:"balance"`
 }
 
-func GetAllUsers() ([]Users, error) {
-	b, err := os.ReadFile("accounts.json")
-	if err != nil {
-		panic(err)
+func GetUser() (User, error) {
+	acc := Account{
+		ID:      1,
+		Number:  111,
+		Type:    "type-account",
+		Balance: 9999999999,
 	}
-	var users []Users
-	err = json.Unmarshal(b, &users)
-	if err != nil {
-		panic(err)
+	user := User{
+		ID:       1,
+		Name:     "name",
+		LastName: "lastname",
+		Age:      5,
+		Active:   true,
+		Account:  []Account{acc, acc, acc, acc, acc, acc, acc, acc, acc, acc, acc, acc, acc, acc, acc, acc, acc, acc},
+		SaveAT:   time.Now(),
 	}
-	return users, nil
+
+	return user, nil
 }
