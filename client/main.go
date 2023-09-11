@@ -1,29 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
-	"fmt"
-	"io"
+	"log"
 	"net/http"
 	"time"
 )
-
-func main() {
-	resp, err := http.Get("http://0.0.0.0:8080/user")
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
-
-	b, err := io.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
-	}
-
-	var user User
-	json.Unmarshal(b, &user)
-	fmt.Println(user)
-}
 
 type User struct {
 	ID       int       `json:"id"`
@@ -31,13 +14,27 @@ type User struct {
 	LastName string    `json:"lastname"`
 	Age      int       `json:"age"`
 	Active   bool      `json:"active"`
-	Account  []Account `json:"account"`
+	Money    float64   `json:"money"`
 	SaveAT   time.Time `json:"saveat"`
 }
 
-type Account struct {
-	ID      int     `json:"id"`
-	Number  int     `json:"number"`
-	Type    string  `json:"type"`
-	Balance float64 `json:"balance"`
+func main() {
+	user := User{
+		ID:       1,
+		Name:     "name",
+		LastName: "lastName",
+		Age:      99,
+		Active:   true,
+		Money:    33999.22,
+	}
+	b, err := json.Marshal(user)
+	if err != nil {
+		panic(err)
+	}
+	bReader := bytes.NewReader(b)
+	resp, err := http.Post("http://0.0.0.0:8080/user", "POST", bReader)
+	if err != nil {
+		panic(err)
+	}
+	log.Println("status CODE: ", resp.StatusCode)
 }
