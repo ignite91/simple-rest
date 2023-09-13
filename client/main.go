@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"log"
+	"fmt"
 	"net/http"
 	"time"
 )
@@ -19,6 +19,22 @@ type User struct {
 }
 
 func main() {
+	t := time.Now()
+	for i := 0; i < 10000; i++ {
+		//getUsers()
+		saveUser()
+	}
+	fmt.Println("Elapsed: ", time.Since(t).Seconds())
+}
+
+func getUsers() {
+	_, err := http.Get("http://0.0.0.0:8080/user")
+	if err != nil {
+		panic(err)
+	}
+}
+
+func saveUser() {
 	user := User{
 		ID:       1,
 		Name:     "name",
@@ -32,9 +48,8 @@ func main() {
 		panic(err)
 	}
 	bReader := bytes.NewReader(b)
-	resp, err := http.Post("http://0.0.0.0:8080/user", "POST", bReader)
+	_, err = http.Post("http://0.0.0.0:8080/user", "POST", bReader)
 	if err != nil {
 		panic(err)
 	}
-	log.Println("status CODE: ", resp.StatusCode)
 }

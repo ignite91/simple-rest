@@ -19,31 +19,44 @@ type User struct {
 }
 
 func main() {
-	http.HandleFunc("/user", saveUserController)
+	http.HandleFunc("/user", userController)
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func saveUserController(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		b, err := io.ReadAll(r.Body)
-		if err != nil {
-			panic(err)
-		}
-		user, err := manipulateData(b)
-		if err != nil {
-			panic(err)
-		}
-		err = saveOnFile(user)
-		if err != nil {
-			panic(err)
-		}
-		w.Write(b)
-	} else {
+func userController(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		getUsers(w, r)
+	case "POST":
+		saveUser(w, r)
+	default:
 		w.WriteHeader(http.StatusBadRequest)
 	}
+}
+func getUsers(w http.ResponseWriter, r *http.Request) {
+	data, err := os.ReadFile("users.json")
+	if err != nil {
+		panic(err)
+	}
+	w.Write(data)
+}
+func saveUser(w http.ResponseWriter, r *http.Request) {
+	b, err := io.ReadAll(r.Body)
+	if err != nil {
+		panic(err)
+	}
+	user, err := manipulateData(b)
+	if err != nil {
+		panic(err)
+	}
+	userb, err := saveOnFile(user)
+	if err != nil {
+		panic(err)
+	}
+	w.Write(userb)
 }
 
 func manipulateData(b []byte) (User, error) {
@@ -57,14 +70,24 @@ func manipulateData(b []byte) (User, error) {
 	return user, nil
 }
 
-func saveOnFile(user User) error {
-	userb, err := json.Marshal(user)
+func saveOnFile(user User) ([]byte, error) {
+	data, err := os.ReadFile("users.json")
 	if err != nil {
 		panic(err)
 	}
-	err = os.WriteFile("users.json", userb, 0644)
+	var users []User
+	err = json.Unmarshal(data, &users)
 	if err != nil {
 		panic(err)
 	}
-	return nil
+	users = append(users, user)
+	usersb, err := json.Marshal(users)
+	if err != nil {
+		panic(err)
+	}
+	os.WriteFile("users.json", usersb, 0644)
+	if err != nil {
+		panic(err)
+	}
+	return usersb, nil
 }
