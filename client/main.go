@@ -20,21 +20,21 @@ type User struct {
 
 func main() {
 	t := time.Now()
-	for i := 0; i < 10000; i++ {
-		//getUsers()
-		saveUser()
+	for i := 0; i < 5000; i++ {
+		//getAllUsers()
+		saveUsers()
 	}
 	fmt.Println("Elapsed: ", time.Since(t).Seconds())
 }
 
-func getUsers() {
+func getAllUsers() {
 	_, err := http.Get("http://0.0.0.0:8080/user")
 	if err != nil {
 		panic(err)
 	}
 }
 
-func saveUser() {
+func saveUsers() {
 	user := User{
 		ID:       1,
 		Name:     "name",

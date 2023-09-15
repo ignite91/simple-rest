@@ -29,21 +29,21 @@ func main() {
 func userController(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		getUsers(w, r)
+		getAllUsers(w, r)
 	case "POST":
-		saveUser(w, r)
+		saveUsers(w, r)
 	default:
 		w.WriteHeader(http.StatusBadRequest)
 	}
 }
-func getUsers(w http.ResponseWriter, r *http.Request) {
+func getAllUsers(w http.ResponseWriter, r *http.Request) {
 	data, err := os.ReadFile("users.json")
 	if err != nil {
 		panic(err)
 	}
 	w.Write(data)
 }
-func saveUser(w http.ResponseWriter, r *http.Request) {
+func saveUsers(w http.ResponseWriter, r *http.Request) {
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
 		panic(err)
