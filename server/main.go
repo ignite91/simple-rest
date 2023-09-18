@@ -41,6 +41,7 @@ func getAllUsers(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
+	// GRPC tiene un paso extra que convierte los byte a objeto
 	w.Write(data)
 }
 func saveUsers(w http.ResponseWriter, r *http.Request) {
@@ -48,35 +49,40 @@ func saveUsers(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	user, err := manipulateData(b)
+	err = saveOnFile(b)
 	if err != nil {
 		panic(err)
 	}
-	userb, err := saveOnFile(user)
-	if err != nil {
-		panic(err)
-	}
-	w.Write(userb)
+	// GRPC tiene un paso extra que convierte los byte a objeto
+	w.Write(b)
 }
 
-func manipulateData(b []byte) (User, error) {
-	var user User
-	err := json.Unmarshal(b, &user)
+// COMO USERS SEPARADOS
+/* func saveOnFile(b []byte) error {
+	f, err := os.OpenFile("users.json", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		panic(err)
 	}
-	user.SaveAT = time.Now()
+	_, err = f.Write(b)
+	if err != nil {
+		panic(err)
+	}
+	return nil
+} */
 
-	return user, nil
-}
-
-func saveOnFile(user User) ([]byte, error) {
+// COMO ARRAY DE USERS
+func saveOnFile(b []byte) error {
 	data, err := os.ReadFile("users.json")
 	if err != nil {
 		panic(err)
 	}
 	var users []User
 	err = json.Unmarshal(data, &users)
+	if err != nil {
+		panic(err)
+	}
+	var user User
+	err = json.Unmarshal(b, &user)
 	if err != nil {
 		panic(err)
 	}
@@ -89,5 +95,5 @@ func saveOnFile(user User) ([]byte, error) {
 	if err != nil {
 		panic(err)
 	}
-	return usersb, nil
+	return nil
 }
