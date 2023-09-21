@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -19,6 +20,7 @@ type User struct {
 }
 
 func main() {
+	fmt.Println("Server Starting . . .")
 	http.HandleFunc("/user", userController)
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
